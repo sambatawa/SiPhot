@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SiPhot</title>
+  <link rel="stylesheet" href="/static/photobooth.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon"> 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <section class="header">
+        <h1>SiPhot</h1>
+        <p>Abadikan dirimu yuk!</p>
+    </section>
+    <section class="container"> 
+        <div>
+            <div class="camera"> 
+                <video id="video" width="640" height="480" autoplay id="video"></video>
+                <canvas id="canvas" idth="640" height="480" style="display:none;"></canvas>
+                <div class="inputan">
+                    <input id="name" type="text" placeholder="Your Name"></input>
+                    <input id="timer" type="number" min="0" placeholder="Timer (sec)"></input>
+                    <div class="PilihanFilter">
+                        <div class="vintage">
+                            <button class="filter-button">Vintage</button> 
+                        </div>
+                        <div class="happy">
+                            <button class="filter-button">Happy</button> 
+                        </div>
+                        <div class="cute">
+                            <button class="filter-button">Cute</button>
+                        </div>
+                        <div class="rocker">
+                            <button class="filter-button">Rocker</button> 
+                        </div>
+                    </div>
+                </div>                
+            <button id="ambil"><i class="fa-solid fa-camera"></i></button>            
+            </div>            
+            <div class="hasil">
+                <div id="hasilFoto"></div>                    
+                <button id="simpan">Pilih 3 Foto</button>
+            </div>
+        </div>
+        <div class="PilihanFrame">
+            <div class="frame1">
+                <button class="frame-button">1</button>
+            </div>
+            <div class="frame2">
+                <button class="frame-button">2</button>
+            </div>
+            <div class="frame3">
+                <button class="frame-button">3</button>
+            </div>
+            <div class="frame4">
+                <button class="frame-button">4</button>
+            </div>
+            <button id="pilih">Ini Pilihanku...</button>
+        </div>
+    </section>
+  <script src="/static/photobooth.js"></script>
+</body>
+</html>
