@@ -1,64 +1,88 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SiPhot</title>
-  <link rel="stylesheet" href="/static/photobooth.css">
-  <link rel="icon" href="favicon.ico" type="image/x-icon"> 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <section class="header">
-        <h1>SiPhot</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SiPhot - Aplikasi Photobooth Digital untuk Mengabadikan Momen Spesial"/>
+    <title>SiPhot - Photobooth</title>
+    <link rel="stylesheet" href="/static/photobooth.css" />
+    <link rel="icon" href="/assets/SiPhot.png" type="image/png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  </head>
+  <body>
+    <div id="gestureModal" class="modal modal_visible">
+      <div class="modal-content">
+        <div class="modal-content-text">
+          <p1>Hand Gesture?</p1>
+          <p2>Izinkan tampilan pola tracking dan kontrol tombol dengan gesture tangan</p2>
+          <div class="modal-actions">
+            <button class="enableGestureBtn" class="btn">boleh</button>
+            <button class="disabledGestureBtn" class="btn">Tidak</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <header class="header">
+      <nav class="nav">
+        <img src="/assets/SiPhot2.png" alt="SiPhot Logo" width="80" />
         <p>Abadikan dirimu yuk!</p>
-    </section>
-    <section class="container"> 
-        <div>
-            <div class="camera"> 
-                <video id="video" width="640" height="480" autoplay id="video"></video>
-                <canvas id="canvas" idth="640" height="480" style="display:none;"></canvas>
-                <div class="inputan">
-                    <input id="name" type="text" placeholder="Your Name"></input>
-                    <input id="timer" type="number" min="0" placeholder="Timer (sec)"></input>
-                    <div class="PilihanFilter">
-                        <div class="vintage">
-                            <button class="filter-button">Vintage</button> 
-                        </div>
-                        <div class="happy">
-                            <button class="filter-button">Happy</button> 
-                        </div>
-                        <div class="cute">
-                            <button class="filter-button">Cute</button>
-                        </div>
-                        <div class="rocker">
-                            <button class="filter-button">Rocker</button> 
-                        </div>
-                    </div>
-                </div>                
-            <button id="ambil"><i class="fa-solid fa-camera"></i></button>            
-            </div>            
-            <div class="hasil">
-                <div id="hasilFoto"></div>                    
-                <button id="simpan">Pilih 3 Foto</button>
+      </nav>
+    </header>
+    <main class="container">
+      <section class="jepret">
+        <div class="camera">
+          <div class="video-container">
+            <div id="camera-status-text" class="camera-status">Status Kamera </div>
+            <video id="video" width="1200" height="692" autoplay playsinline muted></video>
+            <canvas id="video-overlay"></canvas>
+            <div id="cursorDot"></div>
+          </div>
+          <div class="inputan">
+            <div class="timer-section">
+              <label for="timer" class="timer-label"><i class="fa-solid fa-clock"></i>Timer (detik)</label>
+              <input id="timer" type="number" min="0" max="30" placeholder="0" aria-describedby="timer-help"/>
+              <p id="timer-help">Masukkan waktu countdown foto (0-30)</p>
             </div>
+            <div class="frame-section">
+              <h3 class="text-frame">
+                <i class="fa-solid fa-images"></i>Pilih Frame Sebelum Foto
+              </h3>
+              <div class="PilihanFrame" role="group">
+                <button class="frame-button" data-frame="frame1.png">
+                  <img src="/assets/frame1.png" alt="Frame 1" />
+                </button>
+                <button class="frame-button" data-frame="frame2.png">
+                  <img src="/assets/frame2.png" alt="Frame 2" />
+                </button>
+                <button class="frame-button" data-frame="frame3.png">
+                  <img src="/assets/frame3.png" alt="Frame 3" />
+                </button>
+                <button class="frame-button" data-frame="frame4.png">
+                  <img src="/assets/frame4.png" alt="Frame 4" />
+                </button>
+              </div>
+            </div>
+            <div id="countdown" class="countdown-text" aria-live="polite"></div>
+            <button id="ambil" class="capture-btn" disabled><i class="fa-solid fa-camera"></i><span>Ambil Foto</span></button>
+          </div>
         </div>
-        <div class="PilihanFrame">
-            <div class="frame1">
-                <button class="frame-button">1</button>
-            </div>
-            <div class="frame2">
-                <button class="frame-button">2</button>
-            </div>
-            <div class="frame3">
-                <button class="frame-button">3</button>
-            </div>
-            <div class="frame4">
-                <button class="frame-button">4</button>
-            </div>
-            <button id="pilih">Ini Pilihanku...</button>
+        <div class="foto">
+          <h3 class="section-title"><i class="fa-solid fa-photo-film"></i>Preview Foto</h3>
+          <canvas id="canvas" width="800" height="180"></canvas>
+          <div id="pilihanfoto" class="photo-gallery"></div>
+          <button id="simpan" class="select-btn" disabled><i class="fa-solid fa-check"></i>Pilih 4 Foto</button>
         </div>
-    </section>
-  <script src="/static/photobooth.js"></script>
-</body>
+      </section>
+      <section class="Hasil">
+        <h3 class="section-title"><i class="fa-solid fa-star"></i>Hasil Akhir</h3>
+        <canvas id="hasil" width="290"></canvas>
+        <button id="unduh" class="download-btn" disabled><i class="fa-solid fa-download"></i>Download Foto</button>
+        <button class="reset-btn">Reset Sesi</button>
+      </section>
+    </main>
+    <script src="/static/photobooth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  </body>
 </html>
