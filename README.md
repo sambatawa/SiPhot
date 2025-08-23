@@ -20,8 +20,7 @@ Aplikasi photobooth digital yang menggabungkan web interface modern dengan kontr
               SiPhot - Digital Photobooth
    ==================================================
    1. Web Photobooth Mode
-   2. Hand Gesture Mode
-   3. Exit
+   2. Exit
    ==================================================
    ```
 
