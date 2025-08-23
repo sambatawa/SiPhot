@@ -43,6 +43,4 @@ Aplikasi photobooth digital yang menggabungkan web interface modern dengan kontr
 - MediaPipe untuk hand tracking
 - Flask untuk web framework
 - OpenCV untuk computer vision
-- Semua contributor dan pengguna
-
 **Dibuat dengan ❤️ untuk sambatawa.com**
