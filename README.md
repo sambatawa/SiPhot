@@ -1,5 +1,5 @@
 # SiPhot - Photobooth dengan Hand Gesture Control
-Aplikasi photobooth digital yang menggabungkan web interface dengan kontrol hand gesture untuk mouse.
+Aplikasi photobooth digital yang menggabungkan web interface modern dengan kontrol hand gesture untuk mouse.
 
 # Web Photobooth
 - Capture foto real-time dengan frame overlay
@@ -43,3 +43,5 @@ Aplikasi photobooth digital yang menggabungkan web interface dengan kontrol hand
 - MediaPipe untuk hand tracking
 - Flask untuk web framework
 - OpenCV untuk computer vision
+
+**Dibuat dengan ❤️ untuk sambatawa.com**
