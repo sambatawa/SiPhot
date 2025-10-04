@@ -18,6 +18,7 @@ current_frame = None
 selected_frame = "frame1.png"
 captured_photos = []
 selected_photos = []
+hand_gesture_enabled = False
 
 tanganmp = mp.solutions.hands
 hands = tanganmp.Hands(
@@ -130,35 +131,14 @@ def generate_frames():
     while camera_running:
         frame = camera.get_frame()
         if frame is not None:
-            frame = deteksi_tangan(frame)
+            if hand_gesture_enabled:
+                frame = deteksi_tangan(frame)
             ret, buffer = cv2.imencode('.jpg', frame)
             if ret:
                 frame_bytes = buffer.tobytes()
                 yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
         time.sleep(0.03)  
 
-def hand_gesture_mode():
-    global camera_running
-    print("Starting Hand Gesture Mode...")
-    print("Press 'p' to stop hand gesture mode")
-    cap = cv2.VideoCapture(0)
-    if not cap.isOpened():
-        print("Error: Could not open camera for hand gesture mode")
-        return
-    while cap.isOpened():
-        ret, image = cap.read()
-        if not ret:
-            print("Gambar gagal dibaca")
-            break
-        image = cv2.flip(image, 1)
-        image = deteksi_tangan(image)
-        cv2.imshow('Mouse gesture', image)
-        if cv2.waitKey(1) & 0xFF == ord('p'):
-            print("Hand gesture mode stopped")
-            break
-
-    cap.release()
-    cv2.destroyAllWindows()
 
 @app.route('/')
 def index():
@@ -343,13 +323,23 @@ def get_status():
         'selected_frame': selected_frame
     })
 
-@app.route('/hand_gesture')
+@app.route('/hand_gesture', methods=['POST'])
 def start_hand_gesture():
+    global hand_gesture_enabled
     try:
-        gesture_thread = threading.Thread(target=hand_gesture_mode)
-        gesture_thread.daemon = True
-        gesture_thread.start()
+        hand_gesture_enabled = True
+        print("Hand gesture mode enabled")
         return jsonify({'success': True, 'message': 'Hand gesture mode started'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/hand_gesture', methods=['DELETE'])
+def stop_hand_gesture():
+    global hand_gesture_enabled
+    try:
+        hand_gesture_enabled = False
+        print("Hand gesture mode disabled")
+        return jsonify({'success': True, 'message': 'Hand gesture mode stopped'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 

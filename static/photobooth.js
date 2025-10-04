@@ -1,84 +1,63 @@
 const gestureModal = document.getElementById('gestureModal');
 const enableGestureBtn = document.querySelector('.enableGestureBtn');
 const disabledGestureBtn = document.querySelector('.disabledGestureBtn');
-const videoOverlay = document.getElementById('video-overlay');
 let gestureEnabled = false;
-let hands, camera;
-function drawHandTracking(results) {
-    const video2d = videoOverlay.getContext('2d');
-    video2d.clearRect(0, 0, videoOverlay.width, videoOverlay.height);
-    if (results.multiHandLandmarks) {
-        for (const landmarks of results.multiHandLandmarks) {
-            for (const point of landmarks) {
-                video2d.beginPath();
-                video2d.arc(point.x * videoOverlay.width, point.y * videoOverlay.height, 8, 0, 2 * Math.PI);
-                video2d.fillStyle = 'rgba(255,0,0,0.7)';
-                video2d.fill();
-            }
-        }
-    }
-}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (gestureModal) gestureModal.classList.add('modal_visible');
-    if (videoOverlay) {
-        videoOverlay.style.display = 'none';
-    }
+    
     if (enableGestureBtn) {
         enableGestureBtn.addEventListener('click', async () => {
             gestureEnabled = true;
             gestureModal.classList.remove('modal_visible');
-            startHandGesture();
+            await startHandGesture();
         });
     }
+    
     if (disabledGestureBtn) {
-        disabledGestureBtn.addEventListener('click', () => {
+        disabledGestureBtn.addEventListener('click', async () => {
             gestureEnabled = false;
             gestureModal.classList.remove('modal_visible');
-            stopHandGesture();
+            await stopHandGesture();
         });
     }
 });
-function startHandGesture() {
-    if (videoOverlay) {
-        videoOverlay.style.display = 'block';
-        videoOverlay.width = video.videoWidth || 1200;
-        videoOverlay.height = video.videoHeight || 692;
+
+async function startHandGesture() {
+    try {
+        const response = await fetch('/hand_gesture', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const result = await response.json();
+        if (result.success) {
+            showSuccess('Hand gesture mode diaktifkan!');
+        } else {
+            showError('Gagal mengaktifkan hand gesture: ' + result.error);
+        }
+    } catch (error) {
+        showError('Gagal mengaktifkan hand gesture');
     }
-    hands = new Hands({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-    });
-    hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
-    });
-    hands.onResults(drawHandTracking);
-    camera = new Camera(video, {
-        onFrame: async () => {
-            await hands.send({ image: video });
-        },
-        width: 1200,
-        height: 692
-    });
-    camera.start();
 }
 
-function stopHandGesture() {
-    if (camera) {
-        camera.stop();
-    }
-    if (videoOverlay) {
-        videoOverlay.style.display = 'none';
-    }
-    gestureEnabled = false;
-}
-async function capturePhoto() {
-    if (gestureEnabled && videoOverlay) {
-        videoOverlay.style.display = 'none';
-        setTimeout(() => {
-            if (videoOverlay) videoOverlay.style.display = 'block';
-        }, 800);
+async function stopHandGesture() {
+    try {
+        const response = await fetch('/hand_gesture', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const result = await response.json();
+        if (result.success) {
+            showSuccess('Hand gesture mode dinonaktifkan!');
+        } else {
+            showError('Gagal menonaktifkan hand gesture: ' + result.error);
+        }
+    } catch (error) {
+        showError('Gagal menonaktifkan hand gesture');
     }
 }
 
@@ -119,25 +98,7 @@ const frameConfig = {
 let cameraStream = null;
 async function requestCameraPermission() {
     try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error('Browser tidak mendukung akses kamera');
-        }
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                width: { ideal: 1200 },
-                height: { ideal: 620 },
-                facingMode: 'user'
-            },
-            audio: false
-        });
-        video.srcObject = stream;
-        cameraStream = stream;
-        await new Promise((resolve) => {
-            video.onloadedmetadata = () => {
-                video.play();
-                resolve();
-            };
-        });
+        // Menggunakan video feed dari Python backend
         cameraStatusText.textContent = 'Kamera Aktif';
         cameraStatusText.style.color = '#4CAF50';
         ambil.disabled = false;
@@ -145,17 +106,9 @@ async function requestCameraPermission() {
         return true;
     } catch (error) {
         console.error('Error accessing camera:', error);
-        let errorMessage = 'Gagal mengakses kamera';
-        if (error.name === 'NotAllowedError') {
-            errorMessage = 'Izin kamera ditolak. Silakan berikan izin kamera di pengaturan browser.';
-        } else if (error.name === 'NotFoundError') {
-            errorMessage = 'Kamera tidak ditemukan. Pastikan kamera terhubung.';
-        } else if (error.name === 'NotReadableError') {
-            errorMessage = 'Kamera sedang digunakan aplikasi lain. Tutup aplikasi lain yang menggunakan kamera.';
-        }
         cameraStatusText.textContent = 'Kamera Tidak Tersedia';
         cameraStatusText.style.color = '#f44336';
-        showError(errorMessage);
+        showError('Gagal mengakses kamera');
         return false;
     }
 }
@@ -223,10 +176,7 @@ async function capturePhoto() {
         showError('Pilih frame terlebih dahulu!');
         return;
     }
-    if (!cameraStream) {
-        showError('Kamera belum diaktifkan!');
-    return;
-    }
+    // Tidak perlu cek cameraStream karena menggunakan video feed dari Python
     try {
         const timerValue = parseInt(timer.value) || 0;
         ambil.disabled = true;
@@ -234,8 +184,8 @@ async function capturePhoto() {
         if (timerValue > 0) {
             await runCountdown(timerValue);
         }
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        canvas.width = video.naturalWidth || 1000;
+        canvas.height = video.naturalHeight || 576;
         canvas2d.drawImage(video, 0, 0);
         const photoData = canvas.toDataURL('image/jpeg', 0.8);
         const response = await fetch('/capture', {
@@ -475,14 +425,10 @@ ambil.addEventListener('click', async () => {
     showPhotoGallery();
 });
 async function capturePhotoAuto() {
-    if (!cameraStream) {
-        showError('Kamera belum diaktifkan!');
-        return;
-    }
     try {
         const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = video.videoWidth;
-        tempCanvas.height = video.videoHeight;
+        tempCanvas.width = video.naturalWidth || 1000;
+        tempCanvas.height = video.naturalHeight || 576;
         const tempCtx = tempCanvas.getContext('2d');
         tempCtx.drawImage(video, 0, 0);
         const photoData = tempCanvas.toDataURL('image/jpeg', 0.8);
@@ -542,52 +488,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resetBtn) {
         resetBtn.addEventListener('click', resetSession);
     }
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-        }
-        .notification.success {
-            background-color: #4CAF50;
-        }
-        
-        .notification.error {
-            background-color: #f44336;
-        }
-        .reset-btn {
-            background: linear-gradient(135deg, #ff5722, #ff7043);
-            color: white;
-            border: none;
-            padding: 10px 40px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .reset-btn:hover {
-            background: linear-gradient(135deg, #ff7043, #ff5722);
-            transform: translateY(-2px);
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-    `;
-    document.head.appendChild(style);
 });

@@ -32,10 +32,8 @@
       <section class="jepret">
         <div class="camera">
           <div class="video-container">
-            <div id="camera-status-text" class="camera-status">Status Kamera </div>
-            <video id="video" width="1200" height="692" autoplay playsinline muted></video>
-            <canvas id="video-overlay"></canvas>
-            <div id="cursorDot"></div>
+            <div id="camera-status-text" class="camera-status">Status Kamera</div>
+            <img id="video" src="/video_feed" alt="Video Feed" width="1000" height="576" />
           </div>
           <div class="inputan">
             <div class="timer-section">
@@ -81,8 +79,5 @@
       </section>
     </main>
     <script src="/static/photobooth.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
   </body>
 </html>
