@@ -2,7 +2,6 @@ const gestureModal = document.getElementById('gestureModal');
 const enableGestureBtn = document.querySelector('.enableGestureBtn');
 const disabledGestureBtn = document.querySelector('.disabledGestureBtn');
 let gestureEnabled = false;
-
 document.addEventListener('DOMContentLoaded', () => {
     if (gestureModal) gestureModal.classList.add('modal_visible');
     
@@ -12,8 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gestureModal.classList.remove('modal_visible');
             await startHandGesture();
         });
-    }
-    
+    } 
     if (disabledGestureBtn) {
         disabledGestureBtn.addEventListener('click', async () => {
             gestureEnabled = false;
@@ -22,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
 async function startHandGesture() {
     try {
         const response = await fetch('/hand_gesture', {
@@ -60,7 +57,6 @@ async function stopHandGesture() {
         showError('Gagal menonaktifkan hand gesture');
     }
 }
-
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const canvas2d = canvas.getContext('2d');
@@ -176,7 +172,6 @@ async function capturePhoto() {
         showError('Pilih frame terlebih dahulu!');
         return;
     }
-    // Tidak perlu cek cameraStream karena menggunakan video feed dari Python
     try {
         const timerValue = parseInt(timer.value) || 0;
         ambil.disabled = true;
