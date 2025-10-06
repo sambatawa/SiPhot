@@ -38,7 +38,6 @@ async function startHandGesture() {
         showError('Gagal mengaktifkan hand gesture');
     }
 }
-
 async function stopHandGesture() {
     try {
         const response = await fetch('/hand_gesture', {
@@ -94,7 +93,6 @@ const frameConfig = {
 let cameraStream = null;
 async function requestCameraPermission() {
     try {
-        // Menggunakan video feed dari Python backend
         cameraStatusText.textContent = 'Kamera Aktif';
         cameraStatusText.style.color = '#4CAF50';
         ambil.disabled = false;
@@ -150,7 +148,6 @@ function runCountdown(seconds) {
     let count = seconds;
     countdown.textContent = count;
     countdown.style.display = 'block';
-        
     const interval = setInterval(() => {
       count -= 1;
       if (count >= 0) {
@@ -194,7 +191,6 @@ async function capturePhoto() {
             })
         });
         const result = await response.json();
-
         if (result.success) {
             capturedPhotos.push({
                 id: result.photo_id,
@@ -233,7 +229,6 @@ function updateCanvasPreview() {
         };
         img.src = 'data:image/jpeg;base64,' + photo.data;
     });
-
 }
 const galeri = document.getElementById('pilihanfoto');
 let selectedPhotos = [];
@@ -292,7 +287,6 @@ simpan.addEventListener('click', async () => {
             let targetRatio = w / h;
             let srcRatio = srcW / srcH;
             let sx = 0, sy = 0, sw = srcW, sh = srcH;
-
             if (srcRatio > targetRatio) {
                 sw = sh * targetRatio;
                 sx = (srcW - sw) / 2;
@@ -314,7 +308,6 @@ simpan.addEventListener('click', async () => {
         img.src = 'data:image/jpeg;base64,' + photo.data;
     });
 });
-
 async function createComposition() {
     try {
         const response = await fetch('/create_composition', {
@@ -342,11 +335,9 @@ async function createComposition() {
         showError('Gagal membuat komposisi');
     }
 }
-
 function downloadComposition(filename) {
     window.open(`/download/${filename}`, '_blank');
 }
-
 function downloadCanvasResult() {
     try {
         if (hasil.width === 0 || hasil.height === 0) {
@@ -368,7 +359,6 @@ function downloadCanvasResult() {
         showError('Gagal mengunduh hasil');
     }
 }
-
 async function resetSession() {
     try {
         const response = await fetch('/reset', {
@@ -400,12 +390,18 @@ async function resetSession() {
         showError('Gagal mereset sesi');
     }
 }
-
 ambil.addEventListener('click', async () => {
     if (capturedPhotos.length >= 7) {
         showError('Sudah mengambil 7 foto! Pilih 4 foto terbaik.');
         return;
     }
+    let resumeGestureAfter = false;
+    try {
+        if (gestureEnabled) {
+            await stopHandGesture();
+            resumeGestureAfter = true;
+        }
+    } catch (e) {}
     ambil.disabled = true;
     timer.disabled = true;
     let timerValue = parseInt(timer.value) || 0;
@@ -418,6 +414,11 @@ ambil.addEventListener('click', async () => {
     ambil.disabled = false;
     timer.disabled = false;
     showPhotoGallery();
+    try {
+        if (resumeGestureAfter && capturedPhotos.length >= 7) {
+            await startHandGesture();
+        }
+    } catch (e) {}
 });
 async function capturePhotoAuto() {
     try {
@@ -444,29 +445,24 @@ if (closeInstructionsBtn && instructionsModal) {
         await requestCameraPermission();
     });
 }
-
 function showSuccess(message) {
     const notification = document.createElement('div');
     notification.className = 'notification success';
     notification.textContent = message;
     document.body.appendChild(notification);
-    
     setTimeout(() => {
         notification.remove();
     }, 3000);
 }
-
 function showError(message) {
     const notification = document.createElement('div');
     notification.className = 'notification error';
     notification.textContent = message;
     document.body.appendChild(notification);
-    
     setTimeout(() => {
         notification.remove();
     }, 5000);
 }
-
 document.addEventListener('DOMContentLoaded', () => {
     console.log('SiPhot Photobooth initialized');
     if (!video || !canvas || !ambil || !timer || !simpan || !unduh || !hasil) {
@@ -478,7 +474,6 @@ document.addEventListener('DOMContentLoaded', () => {
     simpan.disabled = true;
     unduh.disabled = true;
     unduh.addEventListener('click', downloadCanvasResult);
-    
     const resetBtn = document.querySelector('.reset-btn');
     if (resetBtn) {
         resetBtn.addEventListener('click', resetSession);

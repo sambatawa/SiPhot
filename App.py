@@ -126,7 +126,6 @@ class Camera:
             self.cap = None
             
 camera = Camera()
-
 def generate_frames():
     while camera_running:
         frame = camera.get_frame()
@@ -216,7 +215,6 @@ def capture_photo():
         return jsonify({'success': False, 'error': 'Failed to capture photo'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
-
 @app.route('/select_frame', methods=['POST'])
 def select_frame():
     global selected_frame
@@ -255,7 +253,6 @@ def create_composition():
     try:
         if len(selected_photos) < 4:
             return jsonify({'success': False, 'error': 'Need exactly 4 photos'})
-        
         composition_width = 800
         composition_height = 600
         cell_width = composition_width // 2
@@ -265,7 +262,6 @@ def create_composition():
             (0, 0), (0, cell_width),
             (cell_height, 0), (cell_height, cell_width)
         ]
-        
         for i, photo_data in enumerate(selected_photos):
             if i >= 4:
                 break
